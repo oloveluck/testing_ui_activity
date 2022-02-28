@@ -4,6 +4,7 @@ import { render } from "./test-utils";
 import { TodoApp, TodoItemComponent } from "./TodoApp";
 import  userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom/extend-expect";
+import { AiFillDislike } from "react-icons/ai";
 
 describe("TodoApp", () => {
   let renderedComponent: RenderResult;
@@ -47,6 +48,7 @@ describe("TodoItemComponent Anti-pattern (rely on testId)", () => {
 
   let renderedComponent: RenderResult;
   let itemTitleText: string;
+  let likeButton: HTMLElement;
   beforeEach(() => {
     itemTitleText = "Some Todo Item";
     renderedComponent = render(
@@ -55,6 +57,7 @@ describe("TodoItemComponent Anti-pattern (rely on testId)", () => {
         deleteItem={mockDeleteItem}
       />
     );
+    likeButton = renderedComponent.getByLabelText("like")
     mockDeleteItem.mockClear();
   });
   it("Displays the item title exactly as specified", () => {
@@ -63,6 +66,16 @@ describe("TodoItemComponent Anti-pattern (rely on testId)", () => {
     );
   });
   it("Calls the deleteItem handler when the delete button is clicked", () => {
+    const getLikeButton = () => renderedComponent.getByLabelText("like");
+    userEvent.click(getLikeButton());
+    await waitFor( () =>
+    expect(AiFillDislike).toBeCalled());
+  });
+  it("Calls the likeItem handler to be called when the like button is pressed", () => {
+    userEvent.click(renderedComponent.getByTestId("deleteItem"));
+    expect(mockDeleteItem).toHaveBeenCalled();
+  });
+  it("Calls the unlikeItem handler when the like button is clicked", () => {
     userEvent.click(renderedComponent.getByTestId("deleteItem"));
     expect(mockDeleteItem).toHaveBeenCalled();
   });
